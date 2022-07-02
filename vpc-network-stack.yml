@@ -17,20 +17,10 @@ Parameters:
     Description: Please enter CIDR Format x.x.x.x/x
     Default: 172.20.10.0/24
 
-  privateSubnetCidr2:
-    Type: String
-    Description: Please enter CIDR Format x.x.x.x/x
-    Default: 172.20.11.0/24
-
   publicSubnetCidr1:
     Type: String
     Description: Please enter CIDR Format x.x.x.x/x
     Default: 172.20.20.0/24
-
-  publicSubnetCidr2:
-    Type: String
-    Description: Please enter CIDR Format x.x.x.x/x
-    Default: 172.20.21.0/24
 
 Resources:
 
@@ -53,16 +43,6 @@ Resources:
       Tags:
         - Key: stack
           Value: !Sub ${stackName}-private-AZ1
-
-  privateSubnet2:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref pVPC
-      CidrBlock: !Ref privateSubnetCidr2
-      AvailabilityZone: !Select [ 1, !GetAZs '' ] 
-      Tags:
-        - Key: stack
-          Value: !Sub ${stackName}-private-AZ2
   
   publicSubnet1:
     Type: AWS::EC2::Subnet
@@ -73,16 +53,6 @@ Resources:
       Tags:
         - Key: stack
           Value: !Sub ${stackName}-public-AZ1
-
-  publicSubnet2:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref pVPC
-      CidrBlock: !Ref publicSubnetCidr2
-      AvailabilityZone: !Select [ 1, !GetAZs '' ]
-      Tags:
-        - Key: stack
-          Value: !Sub ${stackName}-public-AZ2
 
   internetGateway:
     Type: AWS::EC2::InternetGateway
@@ -102,12 +72,6 @@ Resources:
     DependsOn: attachVPCGateway
     Properties:
       Domain: vpc
-  
-  natGateway2EIP:
-    Type: AWS::EC2::EIP
-    DependsOn: attachVPCGateway
-    Properties:
-      Domain: vpc
 
   natGateway1:
     Type: AWS::EC2::NatGateway
@@ -117,15 +81,6 @@ Resources:
       Tags:
         - Key: stack
           Value: !Sub ${stackName}-natgateway-1
-
-  natGateway2:
-    Type: AWS::EC2::NatGateway
-    Properties:
-      AllocationId: !GetAtt natGateway2EIP.AllocationId
-      SubnetId: !Ref publicSubnet2
-      Tags:
-        - Key: stack
-          Value: !Sub ${stackName}-natgateway-2
 
   publicRouteTable:
     Type: AWS::EC2::RouteTable
@@ -147,12 +102,6 @@ Resources:
     Properties:
       RouteTableId: !Ref publicRouteTable
       SubnetId: !Ref publicSubnet1
-    
-  publicSubnet2RouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      RouteTableId: !Ref publicRouteTable
-      SubnetId: !Ref publicSubnet2
 
   privateRouteTable1:
     Type: AWS::EC2::RouteTable
@@ -161,14 +110,6 @@ Resources:
       Tags:
         - Key: stack
           Value: !Sub ${stackName}-private-AZ1
-  
-  privateRouteTable2:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !Ref pVPC
-      Tags:
-        - Key: stack
-          Value: !Sub ${stackName}-private-AZ2
 
   defaultPrivateRoute1:
     Type: AWS::EC2::Route
@@ -177,24 +118,11 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref natGateway1
 
-  defaultPrivateRoute2:
-    Type: AWS::EC2::Route
-    Properties:
-      RouteTableId: !Ref privateRouteTable2
-      DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId: !Ref natGateway2
-
   privateSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId: !Ref privateRouteTable1
       SubnetId: !Ref privateSubnet1
-
-  privateSubnet2RouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      RouteTableId: !Ref privateRouteTable2
-      SubnetId: !Ref privateSubnet2
 
   noIngressSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -202,18 +130,3 @@ Resources:
       GroupName: "no-ingress-sg"
       GroupDescription: "Security group with no ingress rule"
       VpcId: !Ref pVPC
-
-
-
-      
-
-
-
-
-
-
-
-
-
-    
-      

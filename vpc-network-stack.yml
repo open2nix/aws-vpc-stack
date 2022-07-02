@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Creates VPC 2 Tier network environment with 2 AZs.
+Description: Creates VPC 2 Tier network environment with single AZ.
 
 Parameters:
   stackName:
@@ -130,3 +130,20 @@ Resources:
       GroupName: "no-ingress-sg"
       GroupDescription: "Security group with no ingress rule"
       VpcId: !Ref pVPC
+
+Outputs:
+  pVPC:
+    Description: A reference to the Created VPC
+    Value: !Ref pVPC
+
+  privateSubnet1:
+    Description: A reference to private subnet in the 1st AZ
+    Value: !Ref privateSubnet1
+
+  publicSubnet1:
+    Description: A reference to public subnet in the 1st AZ
+    Value: !Ref publicSubnet1
+
+  noIngressSecurityGroup:
+    Description: Security group with no ingress rule
+    Value: !Ref noIngressSecurityGroup
